@@ -99,17 +99,7 @@ This workflow helps the agent make incremental progress on the project, followin
     }
     ```
 
-14. Commit changes with descriptive message:
-    ```bash
-    git add -A
-    git commit -m "feat(F###): <short description>
-
-    - Implemented: <what was done>
-    - Tested: <how it was verified>
-    - Notes: <any relevant notes>"
-    ```
-
-15. Update `claude-progress.txt` with session summary:
+14. Update `claude-progress.txt` with session summary:
     ```
     --- Session: YYYY-MM-DD HH:MM ---
     Feature: [F###] <description>
@@ -120,14 +110,22 @@ This workflow helps the agent make incremental progress on the project, followin
       - <change 2>
       - ...
     
-    Commits: <commit hash(es)>
-    
     Next Suggested:
       - <what to work on next>
     
     Blockers/Notes:
       - <any issues encountered>
     ---
+    ```
+
+15. Commit changes with descriptive message:
+    ```bash
+    git add -A
+    git commit -m "feat(F###): <short description>
+
+    - Implemented: <what was done>
+    - Tested: <how it was verified>
+    - Notes: <any relevant notes>"
     ```
 
 ## Step 7: Clean State Check
