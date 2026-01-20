@@ -1,0 +1,25 @@
+# Claude Progress Log
+# Project: <project_name>
+# Created: <date>
+
+================================================================================
+SESSION LOG
+================================================================================
+
+[No sessions recorded yet]
+
+================================================================================
+CURRENT STATE
+================================================================================
+
+Status: Not Started
+Last Working Commit: None
+Blocking Issues: None
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Run /continue to begin implementing features
+2. Start with critical priority features
+3. Work incrementally, one feature at a time

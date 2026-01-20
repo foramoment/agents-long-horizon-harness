@@ -1,0 +1,37 @@
+{
+    "project": {
+        "name": "<project_name>",
+        "description": "<project_description>",
+        "stack": "<technology_stack>",
+        "created_at": "<ISO_date>",
+        "last_updated": "<ISO_date>"
+    },
+    "features": [
+        {
+            "id": "F001",
+            "category": "core",
+            "priority": "critical",
+            "description": "Project setup and basic structure",
+            "steps": [
+                "Verify project directory exists",
+                "Verify all config files are present",
+                "Run the application without errors"
+            ],
+            "passes": false,
+            "notes": ""
+        },
+        {
+            "id": "F002",
+            "category": "core",
+            "priority": "critical",
+            "description": "Development environment configuration",
+            "steps": [
+                "Run init.sh/init.ps1 successfully",
+                "Verify dev server starts",
+                "Verify hot reload works (if applicable)"
+            ],
+            "passes": false,
+            "notes": ""
+        }
+    ]
+}
