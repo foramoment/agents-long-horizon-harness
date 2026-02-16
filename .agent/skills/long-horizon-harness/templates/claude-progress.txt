@@ -8,6 +8,24 @@ SESSION LOG
 
 [No sessions recorded yet]
 
+--- Session: YYYY-MM-DD HH:MM --- (TEMPLATE)
+
+Accomplished:
+  - <what you did this session>
+
+Features Completed:
+  - [F###] <description> ✅
+
+Issues Discovered/Fixed:
+  - <any bugs found and their resolution>
+
+Completion Status: X/Y features passing (XX%)
+
+Next Session Should:
+  - <highest priority work for next session>
+
+---
+
 ================================================================================
 CURRENT STATE
 ================================================================================

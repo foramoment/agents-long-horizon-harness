@@ -1,6 +1,10 @@
 # 🤖 Long-Horizon Agent Harness
 
-A collection of workflow prompts for initializing and managing projects designed for long-running AI agents, based on [Anthropic's research on effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+A collection of workflow prompts for initializing and managing projects designed for long-running AI agents.
+
+> **Inspired by:**
+> - [Anthropic's research on effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+> - [Anthropic's autonomous-coding example](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding)
 
 ## 📖 Overview
 
@@ -11,8 +15,10 @@ When AI agents work on complex projects across multiple context windows, they fa
 
 This harness solves these problems by providing:
 
-- **Structured feature tracking** via `feature_list.json`
-- **Session progress logging** via `claude-progress.txt`
+- **Project specification** via `app_spec.md` — source of truth for what to build
+- **Structured feature tracking** via `feature_list.json` — with categories and verification steps
+- **Session progress logging** via `claude-progress.txt` — structured session records
+- **Mandatory regression testing** — verify existing features before adding new ones
 - **Incremental development workflow** via `/continue`
 - **Quick status checks** via `/status`
 
@@ -21,37 +27,39 @@ This harness solves these problems by providing:
 ### For a New Project
 
 1. Copy the `.agent/workflows/` folder to your project's root directory
-2. Run `/harness-init` to initialize the harness structure
-3. The agent will create:
-   - `feature_list.json` - Comprehensive feature requirements
+2. Run `/init` to initialize the harness structure
+3. The agent will ask about browser testing and create:
+   - `app_spec.md` - Project specification (source of truth)
+   - `feature_list.json` - Comprehensive feature requirements with categories
    - `claude-progress.txt` - Progress tracking log
-   - `init.sh` - Development environment setup script
-   - Project-specific `README.md`
+   - `init.sh` / `init.ps1` - Development environment setup script
 
 ### For Continuing Work
 
 Run `/continue` to:
-- Read current project state
+- Read project specification and current state
+- Run regression checks (MANDATORY before new work)
 - Select the next high-priority feature
-- Implement and test incrementally
+- Implement, test, and commit incrementally
 - Update progress files
 - Leave code in a clean, mergeable state
 
 ### For Checking Status
 
 Run `/status` to:
-- See overall feature completion progress
+- See overall feature completion progress (passing/total with %)
+- Review breakdown by priority and category
 - Review recent activity and commits
 - Identify blocked features
 - Get recommendations for next steps
 
 ## 📁 Workflow Files
 
-| File                               | Description                                      |
-| ---------------------------------- | ------------------------------------------------ |
-| `.agent/workflows/harness-init.md` | Initializes a new project with harness structure |
-| `.agent/workflows/continue.md`     | Incremental development workflow                 |
-| `.agent/workflows/status.md`       | Project status and progress report               |
+| File                           | Description                                      |
+| ------------------------------ | ------------------------------------------------ |
+| `.agent/workflows/init.md`     | Initializes a new project with harness structure |
+| `.agent/workflows/continue.md` | Incremental development workflow                 |
+| `.agent/workflows/status.md`   | Project status and progress report               |
 
 ## 🏗️ Project Structure After Initialization
 
@@ -59,16 +67,18 @@ Run `/status` to:
 <project_root>/
 ├── .agent/
 │   └── workflows/
-│       └── continue.md          # Copied from harness
+│       ├── continue.md          # Development workflow
+│       └── status.md            # Status report workflow
+├── app_spec.md                  # Project specification
 ├── claude-progress.txt          # Session progress log
 ├── feature_list.json            # Feature requirements & status
-├── init.sh                      # Dev environment setup
+├── init.sh / init.ps1           # Dev environment setup
 └── README.md                    # Project documentation
 ```
 
 ## 📋 Feature List Format
 
-Features are tracked in JSON format to prevent accidental modification:
+Features are tracked in JSON format with categories to prevent accidental modification:
 
 ```json
 {
@@ -81,7 +91,7 @@ Features are tracked in JSON format to prevent accidental modification:
   "features": [
     {
       "id": "F001",
-      "category": "core|functional|ui|integration|performance|security",
+      "category": "core|functional|style|ui|integration|performance|security",
       "priority": "critical|high|medium|low",
       "description": "What this feature does",
       "steps": ["Step 1 to verify", "Step 2 to verify"],
@@ -92,34 +102,57 @@ Features are tracked in JSON format to prevent accidental modification:
 }
 ```
 
+> ⚠️ **CRITICAL:** Feature descriptions and steps are IMMUTABLE. Only the `passes` field and `notes` can be modified. Removing or editing features is CATASTROPHIC.
+
 ## 📝 Progress Log Format
 
 Session progress is tracked in `claude-progress.txt`:
 
 ```
 --- Session: 2025-12-15 14:30 ---
-Feature: [F001] Project initialization
-Status: ✅ Completed
 
-Changes Made:
+Accomplished:
   - Created base project structure
   - Set up development environment
-  - Configured build tools
 
-Commits: abc1234
-Next Suggested: Work on F002 - Basic routing
+Features Completed:
+  - [F001] Project initialization ✅
+
+Issues Discovered/Fixed:
+  - None
+
+Completion Status: 1/50 features passing (2%)
+
+Next Session Should:
+  - Work on F002 - Basic routing
 ---
 ```
 
 ## 🔑 Key Principles
 
-Based on Anthropic's research, this harness enforces:
+Based on Anthropic's research and autonomous-coding example, this harness enforces:
 
-1. **One feature at a time** - No parallel feature development
-2. **End-to-end testing** - Features must be fully verified before marking complete
-3. **Clean state handoffs** - Each session leaves code in a mergeable state
-4. **Structured updates** - Progress files are always updated before session end
-5. **Incremental commits** - Small, logical commits with descriptive messages
+1. **Regression first** — Run existing tests before implementing new features
+2. **One feature at a time** — No parallel feature development
+3. **End-to-end testing** — Features must be fully verified before marking complete
+4. **Commit after every feature** — A feature without a commit does not exist
+5. **Feature immutability** — Never edit or remove feature descriptions/steps
+6. **Clean state handoffs** — Each session leaves code in a mergeable state
+7. **Structured updates** — Progress files are always updated before session end
+8. **Same-session continuity** — After `/init`, the agent can immediately start `/continue` workflow
+
+## 🔄 Key Differences from Anthropic's Example
+
+This harness is designed for **IDE-based** usage (Antigravity, Claude Code, Gemini CLI, etc.), not as a standalone Python script. Key adaptations:
+
+| Aspect              | Anthropic Example                                | This Harness                                            |
+| ------------------- | ------------------------------------------------ | ------------------------------------------------------- |
+| **Execution**       | Standalone Python script with auto-continue loop | IDE-driven, user controls sessions via `/continue`      |
+| **Security**        | `security.py` with bash command allowlist        | IDE handles security (user approval flows)              |
+| **File reading**    | `cat` commands                                   | IDE's built-in file reading tools (avoids truncation)   |
+| **Browser testing** | Puppeteer MCP (mandatory)                        | Optional, configured during `/init`                     |
+| **Feature count**   | Fixed 200 features                               | Flexible 20-50 features                                 |
+| **Spec format**     | `app_spec.txt` (plain text)                      | `app_spec.md` (markdown for better agent comprehension) |
 
 ## 🌐 Global vs Local Workflows
 
@@ -139,7 +172,8 @@ cp -r .agent/workflows/ /path/to/your/project/.agent/workflows/
 
 ## 🔗 References
 
-- [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) - Original Anthropic research
+- [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) - Anthropic's research article
+- [Autonomous Coding Example](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding) - Anthropic's reference implementation
 - [Claude 4 Prompting Guide](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices) - Multi-context window workflows
 
 ## 📄 License

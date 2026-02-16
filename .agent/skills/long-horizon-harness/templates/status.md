@@ -13,15 +13,10 @@ This workflow provides a comprehensive overview of the current project state, in
 
 ## Step 2: Read Project State Files
 
-2. Read the progress log to understand recent activity:
-   ```bash
-   cat claude-progress.txt
-   ```
-
-3. Read the feature list to see all features and their status:
-   ```bash
-   cat feature_list.json
-   ```
+2. Read the following files using IDE's built-in file reading tool (NOT `cat`, which truncates in most IDEs):
+   - `claude-progress.txt` — recent session activity
+   - `feature_list.json` — all features and their status
+   - `app_spec.md` — project specification (if exists)
 
 ## Step 3: Analyze Git History
 
@@ -72,6 +67,7 @@ Generated: <current_date_time>
 ### By Category
 - **Core:** X/X completed
 - **Functional:** X/X completed
+- **Style:** X/X completed
 - **UI:** X/X completed
 - **Integration:** X/X completed
 - **Performance:** X/X completed

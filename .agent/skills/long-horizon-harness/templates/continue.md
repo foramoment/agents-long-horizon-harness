@@ -6,119 +6,161 @@ description: Continue incremental development on the project - pick up where the
 
 This workflow helps the agent make incremental progress on the project, following the long-running agent harness pattern.
 
-## Step 1: Get Bearings
+## Step 1: Get Your Bearings (MANDATORY)
+
+Start by orienting yourself. **Use the IDE's built-in file reading tool** (not `cat`, which truncates output in most IDEs):
+
+1. Read `app_spec.md` to understand what you're building
+2. Read `feature_list.json` to see all features and their status
+3. Read `claude-progress.txt` to see what was done in previous sessions
 
 // turbo
-1. Run `pwd` to confirm working directory
-
-2. Read the current state:
+4. Check recent git history and count remaining work:
    ```bash
-   cat claude-progress.txt
-   ```
-
-3. Read feature list:
-   ```bash
-   cat feature_list.json
+   git log --oneline -20
    ```
 
 // turbo
-4. Check recent git history:
+5. Count remaining features:
    ```bash
-   git log --oneline -10
+   grep -c '"passes": false' feature_list.json
    ```
 
-## Step 2: Environment Check
+Understanding the full project context is critical before doing any work.
 
-5. Start the development environment:
-   ```bash
-   ./init.sh
-   ```
-   Or run the appropriate command for your stack (npm run dev, flask run, etc.)
+## Step 2: Start Development Environment
 
-6. Verify basic functionality is working:
+6. Start the development environment if not already running:
+   - **Windows:** Run `./init.ps1`
+   - **macOS/Linux:** Run `chmod +x init.sh && ./init.sh`
+   - Or run the appropriate command for your stack (`npm run dev`, `flask run`, etc.)
+
+7. Verify basic functionality is working:
    - Check that the app/server starts without errors
-   - Test a core feature to ensure nothing is broken
    - **If broken**: Fix before proceeding to new features
 
-## Step 3: Select Next Feature
+## Step 3: Regression Check (MANDATORY)
 
-7. Analyze `feature_list.json` and select the next feature to implement:
-   
-   **Priority Order:**
-   1. `critical` priority features first
-   2. Then `high` priority
-   3. Then `medium` priority  
-   4. Finally `low` priority
-   
-   **Within same priority:**
-   - Prefer features that build on already-completed features
-   - Prefer features with fewer dependencies
-   - Consider logical grouping (finish related features together)
+**MANDATORY BEFORE NEW WORK.** The previous session may have introduced bugs.
 
-8. Announce your selection:
-   > "I will now work on feature **[F###]**: [description]"
+8. Run existing project tests (unit, integration):
+   ```
+   Run the project's test suite (npm test, pytest, cargo test, etc.)
+   ```
 
-## Step 4: Implement Feature
+9. If any tests fail:
+   - Mark affected features as `"passes": false` in `feature_list.json`
+   - Fix all failures **BEFORE** implementing new features
+   - Add discovered issues to `claude-progress.txt`
 
-9. Implement the feature incrementally:
-   - Break down into small, testable steps
-   - Test after each significant change
-   - Write clean, documented code
-   - If stuck for >15 minutes, try a different approach or note the blocker
+<!-- BROWSER_TESTING_START -->
+10. **Browser verification (if enabled):** Pick 1-2 core features marked as `"passes": true` and verify they still work through the UI:
+    - Navigate to the relevant pages
+    - Interact like a real user (click, type, scroll)
+    - Take screenshots to confirm visual correctness
+    - Check browser console for errors
 
-10. **Do NOT** attempt to implement multiple features at once!
+    **If you find ANY issues (functional or visual):**
+    - Mark that feature as `"passes": false` immediately
+    - Fix before moving to new features
+    - This includes UI bugs like:
+      * White-on-white text or poor contrast
+      * Layout issues or overflow
+      * Missing hover states
+      * Console errors
+      * Broken navigation
+<!-- BROWSER_TESTING_END -->
 
-## Step 5: Verify Feature
+## Step 4: Select Next Feature
 
-11. Test the feature **end-to-end** following ALL steps in the feature's `steps` array:
-    
-    **For Web UI:**
-    - Use browser automation (Puppeteer MCP, Playwright) if available
-    - Manually verify if automation not available
-    - Check both happy path and edge cases
-    
+11. Analyze `feature_list.json` and select the next feature to implement:
+
+    **Priority Order:**
+    1. `critical` priority features first
+    2. Then `high` priority
+    3. Then `medium` priority
+    4. Finally `low` priority
+
+    **Within same priority:**
+    - Prefer features that build on already-completed features
+    - Prefer features with fewer dependencies
+    - Consider logical grouping (finish related features together)
+
+12. Announce your selection:
+    > "I will now work on feature **[F###]**: [description]"
+
+## Step 5: Implement the Feature
+
+13. Implement the feature incrementally:
+    - Break down into small, testable steps
+    - **Write tests** for the new functionality (unit, integration as appropriate)
+    - Test after each significant change
+    - Write clean, documented code
+    - If stuck for >15 minutes, try a different approach or note the blocker
+
+14. **Do NOT** attempt to implement multiple features at once!
+
+## Step 6: Verify the Feature
+
+15. Test the feature **end-to-end** following ALL steps in the feature's `steps` array:
+
+    **For all projects:**
+    - Run the project's test suite to ensure no regressions
+    - Verify both happy path and edge cases
+
     **For APIs:**
     - Use curl/httpie to test endpoints
     - Verify response formats and status codes
     - Test error handling
-    
+
     **For CLI:**
     - Run commands with various inputs
     - Check output and exit codes
 
-12. Only mark as `passes: true` if **ALL** verification steps pass
+<!-- BROWSER_TESTING_START -->
+    **For Web UI (browser testing enabled):**
 
-## Step 6: Update State
+    **DO:**
+    - ✅ Test through the UI with clicks and keyboard input
+    - ✅ Take screenshots to verify visual appearance
+    - ✅ Check for console errors in browser
+    - ✅ Verify complete user workflows end-to-end
 
-13. If feature passes, update `feature_list.json`:
+    **DON'T:**
+    - ❌ Only test with curl commands (backend testing alone is insufficient)
+    - ❌ Use JavaScript evaluation to bypass UI (no shortcuts)
+    - ❌ Skip visual verification
+    - ❌ Mark tests passing without screenshot evidence
+<!-- BROWSER_TESTING_END -->
+
+16. Only mark as `passes: true` if **ALL** verification steps pass
+
+## Step 7: Update feature_list.json (CAREFULLY!)
+
+**IT IS CATASTROPHIC TO REMOVE OR EDIT FEATURES.**
+
+17. If feature passes verification, change **ONLY** the `passes` field:
     ```json
-    {
-      "id": "F###",
-      "passes": true,
-      "notes": "Implemented on <date>. <any relevant notes>"
-    }
+    "passes": true,
+    "notes": "Implemented on <date>. <any relevant notes>"
     ```
 
-14. Update `claude-progress.txt` with session summary:
-    ```
-    --- Session: YYYY-MM-DD HH:MM ---
-    Feature: [F###] <description>
-    Status: ✅ Completed
-    
-    Changes Made:
-      - <change 1>
-      - <change 2>
-      - ...
-    
-    Next Suggested:
-      - <what to work on next>
-    
-    Blockers/Notes:
-      - <any issues encountered>
-    ---
-    ```
+**NEVER:**
+- ❌ Remove features from the list
+- ❌ Edit feature descriptions
+- ❌ Modify testing steps
+- ❌ Combine or consolidate features
+- ❌ Reorder features
 
-15. Commit changes with descriptive message:
+**ONLY:**
+- ✅ Change `"passes": false` → `"passes": true` after full verification
+- ✅ Add notes to the `notes` field
+
+## Step 8: Commit Your Progress (MANDATORY — DO NOT SKIP)
+
+> **⛔ A feature is NOT complete until it is committed.** Do not proceed to the next feature, update progress notes, or do anything else until this step is done. Uncommitted work is lost work.
+
+18. Commit changes **immediately** after verification passes:
     ```bash
     git add -A
     git commit -m "feat(F###): <short description>
@@ -128,26 +170,54 @@ This workflow helps the agent make incremental progress on the project, followin
     - Notes: <any relevant notes>"
     ```
 
-## Step 7: Clean State Check
+## Step 9: Update Progress Notes
 
-16. Before ending the session, verify:
+19. Update `claude-progress.txt` with session details:
+    ```
+    --- Session: YYYY-MM-DD HH:MM ---
     
-    - [ ] All changes are committed to git
-    - [ ] No syntax errors or build failures
-    - [ ] `claude-progress.txt` is updated
-    - [ ] `feature_list.json` is updated (if feature completed)
-    - [ ] Development server can still start
-    - [ ] Code is in a **mergeable state** (no half-implemented features)
-
-## Step 8: Decide Next Action
-
-17. After completing a feature:
+    Accomplished:
+      - <what you did this session>
     
+    Features Completed:
+      - [F###] <description> ✅
+    
+    Issues Discovered/Fixed:
+      - <any bugs found and their resolution>
+    
+    Completion Status: X/Y features passing (XX%)
+    
+    Next Session Should:
+      - <highest priority work for next session>
+    ---
+    ```
+
+## Step 10: End Session Cleanly
+
+20. Before your context fills up, ensure:
+
+    1. ✅ All working code is committed to git
+    2. ✅ `claude-progress.txt` is updated with session summary
+    3. ✅ `feature_list.json` reflects actual test status
+    4. ✅ No uncommitted changes (`git status` is clean)
+    5. ✅ App is in a working state (no broken features, no half-implemented code)
+
+## Step 11: Continue or Stop
+
+21. **Before moving on**, verify your commit landed:
+    ```bash
+    git status
+    git log --oneline -1
+    ```
+    If there are uncommitted changes — **STOP and go back to Step 8.**
+
+22. After confirming clean state:
+
     **Continue with next feature:**
-    - Go back to Step 3 and select the next priority feature
+    - Go back to Step 4 and select the next priority feature
     - Continue working autonomously until all features are complete
-    
-    > **Note:** The system automatically compacts context as needed, so you can work indefinitely without worrying about context limits. Always aim to complete as many features as possible in a single session.
+
+    > **Note:** The system automatically compacts context as needed. Work indefinitely without worrying about context limits. Always aim to complete as many features as possible.
 
 ---
 
@@ -155,19 +225,22 @@ This workflow helps the agent make incremental progress on the project, followin
 
 ### DO:
 - ✅ Work on **ONE** feature at a time
+- ✅ Run regression checks **BEFORE** new work
 - ✅ Test **end-to-end** before marking complete
+- ✅ Write tests for new functionality
 - ✅ Commit **frequently** with descriptive messages
 - ✅ Update progress files **before** ending session
 - ✅ Leave code in a **clean, working state**
 - ✅ Fix broken functionality **before** new features
 
 ### DON'T:
-- ❌ **Never** edit feature descriptions or steps
+- ❌ **Never** edit feature descriptions or steps (CATASTROPHIC)
 - ❌ **Never** delete features from the list
 - ❌ **Never** mark `passes: true` without full verification
 - ❌ **Never** leave half-implemented features
-- ❌ **Never** skip the environment check
+- ❌ **Never** skip the regression check
 - ❌ **Never** ignore failing tests
+- ❌ **Never** move to the next feature without committing the current one
 
 ---
 
@@ -222,3 +295,7 @@ At the end of each session, provide a summary:
 - Technical decisions made
 - Potential issues to watch
 ```
+
+---
+
+> **🔴 REMEMBER: The #1 most common failure mode is forgetting to commit after completing a feature. After EVERY feature: `git add -A && git commit`. A feature without a commit does not exist.**
