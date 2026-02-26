@@ -174,8 +174,7 @@ cp -r .agent/workflows/ /path/to/your/project/.agent/workflows/
 
 - [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) - Anthropic's research article
 - [Autonomous Coding Example](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding) - Anthropic's reference implementation
-- [Claude 4 Prompting Guide](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices) - Multi-context window workflows
-
+- [Claude Prompting Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) - Multi-context window workflows
 ## 📄 License
 
 MIT License - Feel free to use and modify for your projects.
